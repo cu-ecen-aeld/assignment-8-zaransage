@@ -2,7 +2,6 @@ inherit core-image
 CORE_IMAGE_EXTRA_INSTALL += "aesd-assignments"
 CORE_IMAGE_EXTRA_INSTALL += "openssh"
 inherit extrausers
-inherit core-image-base
 # See https://docs.yoctoproject.org/singleindex.html#extrausers-bbclass
 # We set a default password of root to match our busybox instance setup
 # Don't do this in a production image

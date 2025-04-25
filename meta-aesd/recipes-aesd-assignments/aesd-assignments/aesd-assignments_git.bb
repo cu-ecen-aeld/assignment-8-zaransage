@@ -43,4 +43,9 @@ do_install() {
     install -d ${D}${sysconfdir}/init.d/
     file ${B}/${STARTUP_NAME}
     install -m 0755 ${B}/${STARTUP_NAME} ${D}${sysconfdir}/init.d/${STARTUP_NAME}
+
+    install -d ${D}${sysconfdir}/rc5.d/
+    ln -sf ../init.d/${STARTUP_NAME} ${D}${sysconfdir}/rc5.d/S99${STARTUP_NAME}
+
+
 }

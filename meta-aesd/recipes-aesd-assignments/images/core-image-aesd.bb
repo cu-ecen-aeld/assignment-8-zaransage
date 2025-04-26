@@ -9,7 +9,8 @@ inherit extrausers
 # printf "%q" $(mkpasswd -m sha256crypt root) to hash the "root" password
 # string
 PASSWD = "\$5\$2WoxjAdaC2\$l4aj6Is.EWkD72Vt.byhM5qRtF9HcCM/5YpbxpmvNB5"
-EXTRA_USERS_PARAMS = "usermod -p '${PASSWD}' root;"
+#EXTRA_USERS_PARAMS = "usermod -p '${PASSWD}' root;"
 #
-PASSWD_D = "\$5\$1ZYoEG4FYrBydb\$h3k.YfbgQZCKl5S8xxAFM/E7xTGdUmu4i5OGPyJaUd0"
-EXTRA_USERS_PARAMS_D = "usermod -p '${PASSWD_D}' dmarble;"
+PASSWDD = "\$5\$1ZYoEG4FYrBydb\$h3k.YfbgQZCKl5S8xxAFM/E7xTGdUmu4i5OGPyJaUd0"
+
+EXTRA_USERS_PARAMS = "useradd -p '${PASSWDD}' dmarble; usermod -p '${PASSWD}' root"

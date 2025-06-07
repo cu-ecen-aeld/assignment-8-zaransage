@@ -50,8 +50,8 @@ do_install() {
 do_install:append(){
 
     # Driver install
-    install -d ${D}/lib/modules/${KERNEL_VERSION}/extra
-    install -m 0644 ${S}/misc-modules/faulty.ko ${D}/lib/modules/${KERNEL_VERSION}/extra/
+    install -d ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/
+    install -m 0644 ${S}/misc-modules/faulty.ko ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/
     
 
     # Init script
@@ -59,5 +59,8 @@ do_install:append(){
     install -m 0755 ${WORKDIR}/faulty_init.sh ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
 }
 
-FILES_${PN} += "${sysconfdir}/init.d"
-FILES_${PN} += "${sysconfdir}/init.d/faulty_init.sh"
+FILES:${PN} += "${sysconfdir}/init.d"
+FILES:${PN} += "${sysconfdir}/init.d/faulty_init.sh"
+
+PACKAGES =+ "kernel-module-faulty"
+FILES:kernel-module-faulty = "${nonarch_base_libdir}/modules/${KERNEL_VERSION}/misc/faulty.ko"

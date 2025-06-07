@@ -13,6 +13,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=f098732a73b5f6f3430472f5b094ffdb"
 
 SRC_URI = "git://github.com/cu-ecen-aeld/assignment-7-zaransage;protocol=https;branch=master"
 SRC_URI += "file://faulty_init.sh"
+SRC_URI += "file://access_ok_version.h"
+SRC_URI += "file://proc_ops_version.h"
 
 # Modify these as desired
 PV = "1.0+git${SRCPV}"
@@ -28,6 +30,11 @@ EXTRA_OEMAKE += " -C ${STAGING_KERNEL_DIR} M=${S}/misc-modules"
 
 INITSCRIPT_NAME = "faulty_init.sh"
 INITSCRIPT_PARAMS = "start 98 5 . stop 02 0 1 6 ."
+
+do_configure:append() {
+    install -Dm0644 ${WORKDIR}/access_ok_version.h ${S}/misc-modules/access_ok_version.h
+    install -Dm0644 ${WORKDIR}/proc_ops_version.h ${S}/misc-modules/proc_ops_version.h
+}
 
 do_install:append(){
     install -d ${D}${sysconfdir}/init.d

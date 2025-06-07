@@ -12,6 +12,7 @@ LICENSE = "Unknown"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f098732a73b5f6f3430472f5b094ffdb"
 
 SRC_URI = "git://github.com/cu-ecen-aeld/assignment-7-zaransage;protocol=https;branch=master"
+SRC_URI += "file://scull_init.sh"
 
 # Modify these as desired
 PV = "1.0+git${SRCPV}"
@@ -19,7 +20,16 @@ SRCREV = "f02fbee1bb44c17ad8491d0c4c9c10f650b821c1"
 
 S = "${WORKDIR}/git"
 
-inherit module
+inherit module update-rc.d
 
 MODULES_INSTALL_TARGET = "install"
-EXTRA_OEMAKE += "KERNELDIR=${STAGING_KERNEL_DIR}"
+#EXTRA_OEMAKE += "KERNELDIR=${STAGING_KERNEL_DIR}"
+EXTRA_OEMAKE += " -C ${STAGING_KERNEL_DIR} M=${S}/scull"
+
+INITSCRIPT_NAME = "scull_init.sh"
+INITSCRIPT_PARAMS = "start 98 5 . stop 02 0 1 6 ."
+
+do_install:append(){
+    install -d ${D}${sysconfdir}/init.d
+    install -m 0755 ${WORKDIR}/scull-init ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
+}

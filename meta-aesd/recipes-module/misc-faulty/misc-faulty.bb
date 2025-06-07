@@ -64,4 +64,4 @@ FILES:${PN} += "${sysconfdir}/init.d"
 FILES:${PN} += "${sysconfdir}/init.d/faulty_init.sh"
 
 PACKAGES =+ "kernel-module-faulty"
-FILES:kernel-module-faulty = "${nonarch_base_libdir}/modules/${KERNEL_VERSION}/misc/faulty.ko"
+FILES:kernel-module-faulty = "${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/faulty.ko"

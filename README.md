@@ -9,6 +9,12 @@ Base repository for AESD Yocto assignments
 2.  ./scripts/devtool add scull https://github.com/cu-ecen-aeld/assignment-7-zaransage
 3. ~/git/assignment-6-zaransage/build$ devtool finish scull meta-aesd
 
+4. I had to clean my setup a few times with the bitbake commands and it messed my qemu up.
+  1. bitbake -c clean qemu-helper-native
+  2. bitbake qemu-helper-native
+  3. These commands fixed it at let my normal process work.
+
+
 
 
 ## Notes:

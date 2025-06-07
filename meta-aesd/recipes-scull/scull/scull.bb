@@ -38,7 +38,8 @@ do_configure:append() {
 
 
 do_compile() {
-    oe_runmake KERNEL_SRC=${STAGING_KERNEL_DIR} M=${S}/scull
+    cd ${S}/scull
+    oe_runmake scull.ko
 }
 
 do_install() {

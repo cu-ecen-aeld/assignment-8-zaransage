@@ -20,7 +20,7 @@ case "$1" in
   start)
     # invoke insmod with all arguments we got
     # and use a pathname, as insmod doesn't look in . by default
-    insmod ./$module.ko $* || exit 1
+    insmod /lib/modules/5.15.164-yocto-standard/extra/$module.ko $* || exit 1
     
     # retrieve major number
     major=$(awk "\$2==\"$module\" {print \$1}" /proc/devices)
@@ -35,13 +35,8 @@ case "$1" in
     chmod $mode  /dev/${device}[0-3]
     ;;
   stop)
-    rmmod $module $* || exit 1
+    rmmod $module || exit 1
     rm -f /dev/${device} /dev/${device}[0-3] 
-    rm -f /dev/${device}priv
-    rm -f /dev/${device}pipe /dev/${device}pipe[0-3]
-    rm -f /dev/${device}single
-    rm -f /dev/${device}uid
-    rm -f /dev/${device}wuid
     ;;
     *)
       echo "Use $0 {start|stop}"

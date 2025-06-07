@@ -37,9 +37,9 @@ do_configure:append() {
 }
 
 do_compile() {
-    oe_runmake KERNEL_SRC=${STAGING_KERNEL_DIR} M=${S}/misc-modules
+    cd ${S}/misc-modules
+    oe_runmake hello.ko
 }
-
 
 do_install() {
     oe_runmake KERNEL_SRC=${STAGING_KERNEL_DIR} \

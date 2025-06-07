@@ -36,7 +36,28 @@ do_configure:append() {
     install -Dm0644 ${WORKDIR}/proc_ops_version.h ${S}/scull/proc_ops_version.h
 }
 
-do_install:append(){
-    install -d ${D}${sysconfdir}/init.d
-    install -m 0755 ${WORKDIR}/scull-init ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
+
+do_compile() {
+    oe_runmake KERNEL_SRC=${STAGING_KERNEL_DIR} M=${S}/scull
 }
+
+do_install() {
+    oe_runmake KERNEL_SRC=${STAGING_KERNEL_DIR} \
+        M=${S}/scull \
+        INSTALL_MOD_PATH=${D} \
+        modules_install
+}
+
+do_install:append(){
+    
+    # Module
+    install -d ${D}/lib/modules/${KERNEL_VERSION}/extra
+    install -m 0644 ${S}/scull/scull.ko ${D}/lib/modules/${KERNEL_VERSION}/extra/
+
+    # Init script
+    install -d ${D}${sysconfdir}/init.d
+    install -m 0755 ${WORKDIR}/scull_init.sh ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
+}
+
+FILES_${PN} += "${sysconfdir}/init.d"
+FILES_${PN} += "${sysconfdir}/init.d/scull_init.sh"

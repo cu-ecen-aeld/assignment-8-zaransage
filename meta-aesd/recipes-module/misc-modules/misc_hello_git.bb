@@ -24,7 +24,7 @@ inherit module update-rc.d
 
 MODULES_INSTALL_TARGET = "install"
 #EXTRA_OEMAKE += "KERNELDIR=${STAGING_KERNEL_DIR}"
-EXTRA_OEMAKE += " -C ${STAGING_KERNEL_DIR} M=${S}/module"
+EXTRA_OEMAKE += " -C ${STAGING_KERNEL_DIR} M=${S}/misc-modules"
 
 INITSCRIPT_NAME = "hello_init.sh"
 INITSCRIPT_PARAMS = "start 98 5 . stop 02 0 1 6 ."

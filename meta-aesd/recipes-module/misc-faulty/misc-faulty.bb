@@ -50,9 +50,15 @@ do_install() {
 
 do_install:append(){
 
+    # Fix one problem and I need these now
+    install -d ${D}${sysconfdir}/modprobe.d
+    install -d ${D}${sysconfdir}/modules-load.d
+    install -d ${D}${sysconfdir}
+
     # Driver install
     install -d ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/
     install -m 0644 ${S}/misc-modules/faulty.ko ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/
+    
     
     # Init script
     install -d ${D}${sysconfdir}/init.d

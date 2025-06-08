@@ -24,3 +24,7 @@ Base repository for AESD Yocto assignments
 
 2. './poky/scripts/devtool add https://github.com/cu-ecen-aeld/assignment-7-zaransage scull' failed because the init process fails.
   1. './poky/scripts/devtool reset assignment-7-zaransage' was needed before I passed the full path to load things in the correct dir.
+
+3. SOMETHING is really unhappy with how I am trying to get my modules installed. I had to fight with this to make everything a module then make their destinations unique. A smarter person would have done this better I suspect.
+  1. There are differences in how the Makefiles interpret a module vs a kernel direct install and how the modules want to be selected and installed.
+  2. I could not just solve for one module and make it work everywhere with the same kind of code. So I had to get ... creative.

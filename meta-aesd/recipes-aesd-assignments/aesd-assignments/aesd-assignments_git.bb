@@ -26,34 +26,34 @@ do_configure () {
 }
 
 do_compile () {
-	oe_runmake
+	oe_runmake -C ${S}
 }
 
 
-INITSCRIPT_NAME = "lddmodules.sh"
-INITSCRIPT_PARAMS = "start 98 5 . stop 02 0 1 6 ."
+#INITSCRIPT_NAME = "lddmodules.sh"
+#INITSCRIPT_PARAMS = "start 98 5 . stop 02 0 1 6 ."
 
 STARTUP_NAME="aesdsocket-start-stop.sh"
 
 do_install() {
     install -d ${D}${bindir}
-    echo "Installing binary from ${B}:"
-    ls -l ${B}/aesdsocket
-    file ${B}/aesdsocket
-    install -m 0755 ${B}/aesdsocket ${D}${bindir}/aesdsocket
+    echo "Installing binary from ${S}:"
+    ls -l ${S}/aesdsocket
+    file ${S}/aesdsocket
+    install -m 0755 ${S}/aesdsocket ${D}${bindir}/aesdsocket
     
     echo "Installing Startup and init scripts:"
-    ls -l ${B}/${STARTUP_NAME}
+    ls -l ${S}/${STARTUP_NAME}
     install -d ${D}${sysconfdir}/init.d/
-    file ${B}/${STARTUP_NAME}
-    install -m 0755 ${B}/${STARTUP_NAME} ${D}${sysconfdir}/init.d/${STARTUP_NAME}
+    file ${S}/${STARTUP_NAME}
+    install -m 0755 ${S}/${STARTUP_NAME} ${D}${sysconfdir}/init.d/${STARTUP_NAME}
 
     install -d ${D}${sysconfdir}/rc5.d/
     ln -sf ../init.d/${STARTUP_NAME} ${D}${sysconfdir}/rc5.d/S99${STARTUP_NAME}
 
     # lld modules script
-    install -d ${D}${sysconfdir}/init.d
-    install -m 0755 ${WORKDIR}/scull_init.sh ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
+    #install -d ${D}${sysconfdir}/init.d
+    #install -m 0755 ${WORKDIR}/scull_init.sh ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
 
 }
 

@@ -8,7 +8,7 @@
 # The following license files were not able to be identified and are
 # represented as "Unknown" below, you will need to check them yourself:
 #   LICENSE
-LICENSE = "Unknown"
+LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f098732a73b5f6f3430472f5b094ffdb"
 
 SRC_URI = "git://github.com/cu-ecen-aeld/assignment-7-zaransage;protocol=https;branch=master"
@@ -54,7 +54,6 @@ do_install:append(){
     install -d ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/
     install -m 0644 ${S}/misc-modules/faulty.ko ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/
     
-
     # Init script
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${WORKDIR}/faulty_init.sh ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
@@ -63,5 +62,5 @@ do_install:append(){
 FILES:${PN} += "${sysconfdir}/init.d"
 FILES:${PN} += "${sysconfdir}/init.d/faulty_init.sh"
 
-PACKAGES =+ "kernel-module-faulty"
+KERNEL_MODULE_PACKAGE_PREFIX = ""
 FILES:kernel-module-faulty = "${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/faulty.ko"

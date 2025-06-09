@@ -30,8 +30,8 @@ do_compile () {
 }
 
 
-#INITSCRIPT_NAME = "lddmodules.sh"
-#INITSCRIPT_PARAMS = "start 98 5 . stop 02 0 1 6 ."
+INITSCRIPT_NAME = "lddmodules.sh"
+INITSCRIPT_PARAMS = "start 98 5 . stop 02 0 1 6 ."
 
 STARTUP_NAME="aesdsocket-start-stop.sh"
 
@@ -52,8 +52,8 @@ do_install() {
     ln -sf ../init.d/${STARTUP_NAME} ${D}${sysconfdir}/rc5.d/S99${STARTUP_NAME}
 
     # lld modules script
-    #install -d ${D}${sysconfdir}/init.d
-    #install -m 0755 ${WORKDIR}/scull_init.sh ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
+    install -d ${D}${sysconfdir}/init.d
+    install -m 0755 ${WORKDIR}/scull_init.sh ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
 
 }
 

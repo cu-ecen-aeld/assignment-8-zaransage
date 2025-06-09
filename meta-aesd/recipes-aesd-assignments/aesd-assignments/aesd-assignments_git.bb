@@ -10,6 +10,8 @@ SRC_URI = "git://github.com/cu-ecen-aeld/assignments-3-and-later-zaransage.git;p
 SRCREV  = "fdcf15b185b2f7748390c0aa091d32c94fc829b8"
 PV = "1.0+git${SRCPV}"
 
+SRC_URI += "file://lddmodules.sh"
+
 S = "${WORKDIR}/git/server"
 
 INSANE_SKIP_${PN} += "debugsplit"
@@ -53,7 +55,7 @@ do_install() {
 
     # lld modules script
     install -d ${D}${sysconfdir}/init.d
-    install -m 0755 ${WORKDIR}/scull_init.sh ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
+    install -m 0755 ${WORKDIR}/lddmodules.sh ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
 
 }
 

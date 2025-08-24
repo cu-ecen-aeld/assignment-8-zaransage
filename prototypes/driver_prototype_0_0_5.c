@@ -91,6 +91,10 @@ static int __init my_driver_init(void){
 }
 
 static void __exit my_driver_exit(void){
+    if (message){
+        kfree(message);
+    }
+    
     unregister_chrdev(major, DEVICE_NAME);
     printk(KERN_DEBUG "Unregistered device\n");
 }

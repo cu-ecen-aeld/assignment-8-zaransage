@@ -12,7 +12,6 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Dana");
 MODULE_DESCRIPTION("Another prototype Driver");
 
-
 #define DEVICE_NAME "prototype_six"
 #define BUFFER_LEN 256
 
@@ -58,7 +57,7 @@ static ssize_t my_write(struct file *file, const char __user *buf, size_t len, l
 
     my_stored_memory[(ssize_t)count] = new_buffer;
 
-    if (copy_from_user(message, buf, len)){
+    if (copy_from_user(new_buffer, buf, len)){
         kfree(new_buffer);
         return -EFAULT;
     }
@@ -114,3 +113,5 @@ static void __exit my_driver_exit(void){
 
 module_init(my_driver_init);
 module_exit(my_driver_exit);
+
+// To test, run insmod <driver_name> then find the major number in dmesg. Then mknod -m 666 /dev/prototype_six c 240 0 - where 240 is the real major number

@@ -14,7 +14,7 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Dana");
 MODULE_DESCRIPTION("Another prototype Driver");
 
-#define DEVICE_NAME "prototype_six"
+#define DEVICE_NAME "prototype_seven"
 #define BUFFER_LEN 256
 
 static int major;
@@ -34,6 +34,33 @@ aesd_circular_buffer_init(myBuffer);
 
 //End of my buffer init work
 
+// Commands for working with the buffer:
+// char *data = "Dirka";
+// Get Data:
+// struct aesd_buffer_entry *entry = malloc(sizeof(struct aesd_buffer_entry));
+// entry->buffprt = data; //This reads the data in
+// entry->size = strlen(data);
+
+// Define an offset for the entry:
+// int offset = 4;
+// printf("Char %c at offset %d.\n", entry->buffptr[offset], offset);
+
+// Now, if I want to add that entry:
+// Specify the buffer to use and the entry.
+// aesd_circular_buffer_add_entry(myBuffer. entry);
+
+// If I want to find an entry or position:
+// size_t char_offset = 1;
+// size_t *entry_offset_byte_rtn;
+
+// Find and get the entry:
+// aesd_circular_buffer_find_entry_offset_for_fpos(my_buffer, char_offset, entry_offset_byte_rtn);
+
+// I need to remember to free the data after.
+// free(entry);
+// free(myBuffer);
+
+// The start of file operations
 static int my_open(struct inode *inode, struct file *file){
     printk(KERN_DEBUG "Opening file\n");
     return 0;

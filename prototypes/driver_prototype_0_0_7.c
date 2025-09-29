@@ -27,7 +27,7 @@ static int count = 0;
 // Start of my buffer init work
 
 // Initialize my buffer
-struct aesd_circular_buffer *myBuffer = malloc(sizeof(struct aesd_circular_buffer)); 
+struct aesd_circular_buffer *myBuffer = kmalloc(sizeof(struct aesd_circular_buffer)); 
 
 // init said buffer
 aesd_circular_buffer_init(myBuffer);
@@ -37,7 +37,7 @@ aesd_circular_buffer_init(myBuffer);
 // Commands for working with the buffer:
 // char *data = "Dirka";
 // Get Data:
-// struct aesd_buffer_entry *entry = malloc(sizeof(struct aesd_buffer_entry));
+// struct aesd_buffer_entry *entry = kmalloc(sizeof(struct aesd_buffer_entry));
 // entry->buffprt = data; //This reads the data in
 // entry->size = strlen(data);
 
@@ -86,22 +86,32 @@ static ssize_t my_read(struct file *file, char __user *buf, size_t len, loff_t *
 
 static ssize_t my_write(struct file *file, const char __user *buf, size_t len, loff_t *offset){
     
-    char *new_buffer;
+    char *data;
     int i;
 
-    new_buffer = kmalloc(len +1, GFP_KERNEL);
-    if (!new_buffer){
+    // Define an entry
+    struct aesd_buffer_entry *entry = kmalloc(sizeof(struct aesd_buffer_entry));
+
+    // Define data value and memory.
+    data = kmalloc(len +1, GFP_KERNEL);
+    if (!data){
         return -ENOMEM;
     }
 
-    my_stored_memory[(ssize_t)count] = new_buffer;
+    // Capture the data from the user and add the data into a buffer entry.
+    if (copy_from_user(data, buf, len)){
+        entry->buffprt = data;
+        entry->size = strlen(data);
 
-    if (copy_from_user(new_buffer, buf, len)){
-        kfree(new_buffer);
+        aesd_circular_buffer_add_entry(myBuffer, entry);
+        
+        kfree(data);
         return -EFAULT;
     }
-
+    // Double check where this lives
     new_buffer[len] = '\0';
+
+    // Below, I now need to make sure I can print the data in the buffer.
 
     if (count > 10){
         kfree(my_stored_memory[0]);
@@ -111,10 +121,10 @@ static ssize_t my_write(struct file *file, const char __user *buf, size_t len, l
         count = 10 - 1;
     }
 
-    my_stored_memory[count] = new_buffer;
+    my_stored_memory[count] = data;
     count++;
 
-    message = new_buffer;
+    message = data;
     message_length = len;
 
     printk(KERN_DEBUG "got %zu bytes: %s\n", len, message);

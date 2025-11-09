@@ -32,6 +32,7 @@ int aesd_open(struct inode *inode, struct file *filp)
     /**
      * TODO: handle open
      */
+     printk("Opened the file!\n");
     return 0;
 }
 
@@ -65,6 +66,7 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
      */
     return retval;
 }
+
 struct file_operations aesd_fops = {
     .owner =    THIS_MODULE,
     .read =     aesd_read,
@@ -86,8 +88,6 @@ static int aesd_setup_cdev(struct aesd_dev *dev)
     }
     return err;
 }
-
-
 
 int aesd_init_module(void)
 {

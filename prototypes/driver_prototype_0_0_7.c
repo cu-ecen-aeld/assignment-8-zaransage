@@ -121,6 +121,8 @@ static ssize_t my_write(struct file *file, const char __user *buf, size_t len, l
         return -EFAULT;
     }
     // Double check where this lives
+    // We might need to do a check in the copy from user space above the entry->buffptr = data;
+    // We might need to check for the spaces or new lines or whatever there.
     //myBuffer[len] = '\0';
 
     // Below, I now need to make sure I can print the data in the buffer.

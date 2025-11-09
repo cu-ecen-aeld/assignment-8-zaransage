@@ -24,13 +24,25 @@ static size_t message_length = 0;
 static char *my_stored_memory[10];
 static int count = 0;
 
+struct aesd_circular_buffer *myBuffer;
+
+
 // Start of my buffer init work
 
-// Initialize my buffer
-struct aesd_circular_buffer *myBuffer = kmalloc(sizeof(struct aesd_circular_buffer)); 
+static int setup_buffer_items(void){
 
-// init said buffer
-aesd_circular_buffer_init(myBuffer);
+    // Allocate memory for my buffer
+    myBuffer = kmalloc(sizeof(struct aesd_circular_buffer), GFP_KERNEL);
+    
+     if (!myBuffer) {
+        return -ENOMEM;
+    }
+
+    // init said buffer
+    aesd_circular_buffer_init(myBuffer);
+
+    return 0; 
+}
 
 //End of my buffer init work
 
@@ -90,7 +102,7 @@ static ssize_t my_write(struct file *file, const char __user *buf, size_t len, l
     int i;
 
     // Define an entry
-    struct aesd_buffer_entry *entry = kmalloc(sizeof(struct aesd_buffer_entry));
+    struct aesd_buffer_entry *entry = kmalloc(sizeof(struct aesd_buffer_entry),GFP_KERNEL);
 
     // Define data value and memory.
     data = kmalloc(len +1, GFP_KERNEL);
@@ -100,7 +112,7 @@ static ssize_t my_write(struct file *file, const char __user *buf, size_t len, l
 
     // Capture the data from the user and add the data into a buffer entry.
     if (copy_from_user(data, buf, len)){
-        entry->buffprt = data;
+        entry->buffptr = data;
         entry->size = strlen(data);
 
         aesd_circular_buffer_add_entry(myBuffer, entry);
@@ -109,9 +121,10 @@ static ssize_t my_write(struct file *file, const char __user *buf, size_t len, l
         return -EFAULT;
     }
     // Double check where this lives
-    new_buffer[len] = '\0';
+    //myBuffer[len] = '\0';
 
     // Below, I now need to make sure I can print the data in the buffer.
+    // START HERE //
 
     if (count > 10){
         kfree(my_stored_memory[0]);
@@ -148,6 +161,9 @@ static int __init my_driver_init(void){
     }
 
     printk(KERN_DEBUG "Registered with major number %d\n", major);
+
+    setup_buffer_items();
+
     return 0;
 }
 

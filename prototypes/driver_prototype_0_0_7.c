@@ -88,7 +88,7 @@ static ssize_t my_read(struct file *file, char __user *buf, size_t len, loff_t *
     size_t entry_offset_byte = 0;
     size_t bytes_to_copy;
     size_t total_copied = 0;
-    ssize_t retval = 0;
+    ssize_t retval;
 
 
     if (len == 0) {
@@ -99,22 +99,24 @@ static ssize_t my_read(struct file *file, char __user *buf, size_t len, loff_t *
         return -ENODEV;
     }
 
-    entry = aesd_circular_buffer_find_entry_offset_for_fpos(myBuffer, *offset, &entry_offset_byte);
+    while (total_copied < len){
 
-    if (entry == NULL) {
-        return -ENODEV;
+        entry = aesd_circular_buffer_find_entry_offset_for_fpos(myBuffer, *offset + total_copied, &entry_offset_byte);
+
+        if (!entry) {
+            break;
+        }
+
+        bytes_to_copy = min(len - total_copied, entry->size - entry_offset_byte);
+
+        if (copy_to_user(buf + total_copied, entry->buffptr + entry_offset_byte, bytes_to_copy)){
+            return -EFAULT;
+         }
+
+
     }
 
-    bytes_to_copy = min(len - total_copied, entry->size - entry_offset_byte);
-
-
-    if (copy_to_user(buf + total_copied, entry->buffptr + entry_offset_byte, bytes_to_copy)){
-        return -EFAULT;
-    }
-
-    total_copied += bytes_to_copy;
-    *offset += bytes_to_copy;
-
+    *offset += total_copied;
     retval = total_copied;
 
     if (retval == 0) {

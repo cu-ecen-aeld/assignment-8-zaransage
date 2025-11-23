@@ -10,6 +10,7 @@
 #include "aesd-circular-buffer.h"
 #include "aesd-circular-buffer.c"
 
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Dana");
 MODULE_DESCRIPTION("Another prototype Driver");
@@ -19,13 +20,11 @@ MODULE_DESCRIPTION("Another prototype Driver");
 
 static int major;
 static char *message = NULL;
-static size_t message_length = 0;
 
-static char *my_stored_memory[10];
-static int count = 0;
+//static char *my_stored_memory[10];
+//static int count = 0;
 
 struct aesd_circular_buffer *myBuffer;
-
 
 // Start of my buffer init work
 
@@ -84,22 +83,52 @@ static int my_release(struct inode *inode, struct file *file){
 }
 
 static ssize_t my_read(struct file *file, char __user *buf, size_t len, loff_t *offset){
-    if (*offset >= message_length){
+
+    struct aesd_buffer_entry *entry;
+    size_t entry_offset_byte = 0;
+    size_t bytes_to_copy;
+    size_t total_copied = 0;
+    ssize_t retval = 0;
+
+
+    if (len == 0) {
         return 0;
     }
 
-    if (copy_to_user(buf, message + *offset, message_length - *offset)){
+    if (!myBuffer) {
+        return -ENODEV;
+    }
+
+    entry = aesd_circular_buffer_find_entry_offset_for_fpos(myBuffer, *offset, &entry_offset_byte);
+
+    if (entry == NULL) {
+        return -ENODEV;
+    }
+
+    bytes_to_copy = min(len - total_copied, entry->size - entry_offset_byte);
+
+
+    if (copy_to_user(buf + total_copied, entry->buffptr + entry_offset_byte, bytes_to_copy)){
         return -EFAULT;
     }
 
-    *offset = message_length;
-    return message_length;
+    total_copied += bytes_to_copy;
+    *offset += bytes_to_copy;
+
+    retval = total_copied;
+
+    if (retval == 0) {
+        retval = -EAGAIN;
+    }
+
+    return retval;
+
+
 }
 
 static ssize_t my_write(struct file *file, const char __user *buf, size_t len, loff_t *offset){
     
     char *data;
-    int i;
 
     // Define an entry
     struct aesd_buffer_entry *entry = kmalloc(sizeof(struct aesd_buffer_entry),GFP_KERNEL);
@@ -116,35 +145,11 @@ static ssize_t my_write(struct file *file, const char __user *buf, size_t len, l
         entry->size = strlen(data);
 
         aesd_circular_buffer_add_entry(myBuffer, entry);
-        
-        kfree(data);
-        return -EFAULT;
-    }
-    // Double check where this lives
-    // We might need to do a check in the copy from user space above the entry->buffptr = data;
-    // We might need to check for the spaces or new lines or whatever there.
-    //myBuffer[len] = '\0';
-
-    // Below, I now need to make sure I can print the data in the buffer.
-    // START HERE //
-
-    if (count > 10){
-        kfree(my_stored_memory[0]);
-        for (i = 0; i < 10 -1; i++){
-            my_stored_memory[i] = my_stored_memory[i+1];
-        }
-        count = 10 - 1;
     }
 
-    my_stored_memory[count] = data;
-    count++;
+    //printk(KERN_DEBUG "Reporting that I have copied data from the user.\n");
 
-    message = data;
-    message_length = len;
-
-    printk(KERN_DEBUG "got %zu bytes: %s\n", len, message);
-    return len;
-
+    return -EINVAL;
 }
 
 static struct file_operations fops = {

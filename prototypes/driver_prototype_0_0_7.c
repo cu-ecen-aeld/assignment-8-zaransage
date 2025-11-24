@@ -7,7 +7,7 @@
 #include <linux/types.h>  
 #include <linux/completion.h>
 #include <linux/slab.h>
-#include "aesd-circular-buffer.h"
+//#include "aesd-circular-buffer.h"
 #include "aesd-circular-buffer.c"
 
 
@@ -88,8 +88,6 @@ static ssize_t my_read(struct file *file, char __user *buf, size_t len, loff_t *
     size_t entry_offset_byte = 0;
     size_t bytes_to_copy;
     size_t total_copied = 0;
-    ssize_t retval;
-
 
     if (len == 0) {
         return 0;
@@ -117,40 +115,51 @@ static ssize_t my_read(struct file *file, char __user *buf, size_t len, loff_t *
     }
 
     *offset += total_copied;
-    retval = total_copied;
 
-    if (retval == 0) {
-        retval = -EAGAIN;
-    }
-
-    return retval;
+    return total_copied;
 
 
 }
 
-static ssize_t my_write(struct file *file, const char __user *buf, size_t len, loff_t *offset){
-    
-    char *data;
+static ssize_t my_write(struct file *file, const char __user *buf, size_t len, loff_t *offset)
+{
+    char *kdata;
+    struct aesd_buffer_entry add_entry;
+    size_t i;
 
-    // Define an entry
-    struct aesd_buffer_entry *entry = kmalloc(sizeof(struct aesd_buffer_entry),GFP_KERNEL);
+    if (!myBuffer || len == 0)
+        return -EINVAL;
 
-    // Define data value and memory.
-    data = kmalloc(len +1, GFP_KERNEL);
-    if (!data){
+    kdata = kmalloc(len + 1, GFP_KERNEL);
+    if (!kdata)
         return -ENOMEM;
+
+    if (copy_from_user(kdata, buf, len)) {
+        kfree(kdata);
+        return -EFAULT;
+    }
+    kdata[len] = '\0';  // null terminate
+
+    // Look for newline
+    for (i = 0; i < len; i++) {
+        if (kdata[i] == '\n') {
+            // Found complete command: include the \n
+            add_entry.buffptr = kdata;
+            add_entry.size = i + 1;
+
+            // Add to circular buffer (may evict old entry)
+            aesd_circular_buffer_add_entry(myBuffer, &add_entry);
+
+            printk(KERN_INFO "prototype_seven: stored command: %.*s", (int)add_entry.size, add_entry.buffptr);
+            return len;  // success: full line written
+        }
     }
 
-    // Capture the data from the user and add the data into a buffer entry.
-    if (copy_from_user(data, buf, len)){
-        entry->buffptr = data;
-        entry->size = strlen(data);
-
-        aesd_circular_buffer_add_entry(myBuffer, entry);
-    }
-
-    //printk(KERN_DEBUG "Reporting that I have copied data from the user.\n");
-
+    // No newline → partial command
+    // For full aesdchar, we buffer it in file->private_data
+    // But for now, reject partial writes (simpler and acceptable)
+    printk(KERN_WARNING "prototype_seven: partial write rejected (no newline)\n");
+    kfree(kdata);
     return -EINVAL;
 }
 

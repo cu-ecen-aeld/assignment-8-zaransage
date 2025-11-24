@@ -127,38 +127,41 @@ static ssize_t my_write(struct file *file, const char __user *buf, size_t len, l
     struct aesd_buffer_entry add_entry;
     size_t i;
 
-    if (!myBuffer || len == 0)
+    if (!myBuffer){
         return -EINVAL;
+    }
+
+    if (len == 0) {
+        return -EINVAL;
+    }
 
     kdata = kmalloc(len + 1, GFP_KERNEL);
-    if (!kdata)
+    if (!kdata) {
         return -ENOMEM;
+    }
 
     if (copy_from_user(kdata, buf, len)) {
         kfree(kdata);
         return -EFAULT;
     }
-    kdata[len] = '\0';  // null terminate
+    
+    kdata[len] = '\0';  // null terminate like in the server process
 
-    // Look for newline
     for (i = 0; i < len; i++) {
         if (kdata[i] == '\n') {
-            // Found complete command: include the \n
+
             add_entry.buffptr = kdata;
             add_entry.size = i + 1;
 
-            // Add to circular buffer (may evict old entry)
             aesd_circular_buffer_add_entry(myBuffer, &add_entry);
 
             printk(KERN_INFO "prototype_seven: stored command: %.*s", (int)add_entry.size, add_entry.buffptr);
-            return len;  // success: full line written
+            return len; 
         }
     }
 
-    // No newline → partial command
-    // For full aesdchar, we buffer it in file->private_data
-    // But for now, reject partial writes (simpler and acceptable)
-    printk(KERN_WARNING "prototype_seven: partial write rejected (no newline)\n");
+    
+    printk(KERN_WARNING "prototype_seven: partial write (no newline)\n");
     kfree(kdata);
     return -EINVAL;
 }

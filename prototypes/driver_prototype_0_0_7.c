@@ -7,7 +7,6 @@
 #include <linux/types.h>  
 #include <linux/completion.h>
 #include <linux/slab.h>
-//#include "aesd-circular-buffer.h"
 #include "aesd-circular-buffer.c"
 
 
@@ -111,6 +110,7 @@ static ssize_t my_read(struct file *file, char __user *buf, size_t len, loff_t *
             return -EFAULT;
          }
 
+         total_copied += bytes_to_copy;
 
     }
 

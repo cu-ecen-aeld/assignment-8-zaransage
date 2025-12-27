@@ -13,7 +13,9 @@ EXTRA_CFLAGS += $(DEBFLAGS)
 
 ifneq ($(KERNELRELEASE),)
 # call from kernel build system
-obj-m	:= driver_prototype_0_0_7.o
+obj-m := driver_prototype.o
+driver_prototype-objs := driver_prototype_0_0_7.o aesd-circular-buffer.o
+
 else
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build

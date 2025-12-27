@@ -7,7 +7,7 @@
 #include <linux/types.h>  
 #include <linux/completion.h>
 #include <linux/slab.h>
-#include "aesd-circular-buffer.c"
+#include "aesd-circular-buffer.h"
 
 
 MODULE_LICENSE("GPL");
@@ -72,6 +72,7 @@ static int setup_buffer_items(void){
 
 // The start of file operations
 static int my_open(struct inode *inode, struct file *file){
+    file->f_pos = 0;
     printk(KERN_DEBUG "Opening file\n");
     return 0;
 }

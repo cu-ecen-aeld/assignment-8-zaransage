@@ -56,11 +56,6 @@
       return NULL;
      }
 
-     // Okay, is the buffer empty...
-     if (!buffer->full) {
-        return NULL;
-     }    
-
      // I need something to hold the place of our offset in the loop...
      my_new_offset = 0;
 
@@ -78,7 +73,7 @@
     for (i = 0; i < my_entry_check; i++){
      struct aesd_buffer_entry *entry = &buffer->entry[entry_position];
      if (!entry->buffptr || entry->size == 0){
-        return NULL;
+        break;
      }
 
      if (char_offset >= my_new_offset && char_offset < (my_new_offset + entry->size)){

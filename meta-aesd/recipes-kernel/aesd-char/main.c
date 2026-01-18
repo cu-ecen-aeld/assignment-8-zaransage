@@ -208,11 +208,11 @@ struct file_operations aesd_fops = {
 
 int aesd_init_module(void)
 {
-    dev_t dev = 0;
+    dev_t device = 0;
     int result;
-    result = alloc_chrdev_region(&dev, aesd_minor, 1,
+    result = alloc_chrdev_region(&device, aesd_minor, 1,
             "aesdchar");
-    aesd_major = MAJOR(dev);
+    aesd_major = MAJOR(device);
     if (result < 0) {
         printk(KERN_WARNING "Can't get major %d\n", aesd_major);
         return result;
@@ -234,23 +234,66 @@ int aesd_init_module(void)
     result = aesd_setup_cdev(&aesd_device);
 
     if( result ) {
-        unregister_chrdev_region(dev, 1);
+        unregister_chrdev_region(device, 1);
+        return result;
     }
-    return result;
+
+    aesd_device.devno = MKDEV(aesd_major, aesd_minor);
+
+    aesd_device.class = class_create(THIS_MODULE, "aesd");
+    if (IS_ERR(aesd_device.class)){
+        result = PTR_ERR(aesd_device.class);
+        cdev_del(&aesd_device.cdev);
+        unregister_chrdev_region(device, 1);
+        return result;
+    }
+
+    aesd_device.device = device_create(aesd_device.class, NULL, aesd_device.devno, NULL, "aesd");
+    if (IS_ERR(aesd_device.device)) {
+        result = PTR_ERR(aesd_device.device);
+        class_destroy(aesd_device.class);
+        cdev_del(&aesd_device.cdev);
+        unregister_chrdev_region(device, 1);
+        return result;
+    }
+
+    return 0;
 
 }
 
 void aesd_cleanup_module(void)
 {
-    dev_t devno = MKDEV(aesd_major, aesd_minor);
+
+    uint8_t index;
+    struct aesd_buffer_entry *entry;
+    dev_t deviceNumber = MKDEV(aesd_major, aesd_minor);
+
+    if (aesd_device.class) {
+        device_destroy(aesd_device.class, aesd_device.devno);
+        class_destroy(aesd_device.class)
+    }
+
 
     cdev_del(&aesd_device.cdev);
+
+    if (aesd_device.pending){
+        kfree(aesd_device.pending);
+        aesd_device.pending = NULL;
+        aesd_device.pending_len = 0;
+    }
+
+    AESD_CIRCULAR_BUFFER_FOREACH(entry, &aesd_device.buffer, index){
+        if (entry->buffprt);
+        kfree(entry->buffptr);
+        entry->buffer = NULL;
+        entry->size = 0;
+    }
 
     /**
      * TODO: cleanup AESD specific poritions here as necessary
      */
 
-    unregister_chrdev_region(devno, 1);
+    unregister_chrdev_region(deviceNumber, 1);
 }
 
 

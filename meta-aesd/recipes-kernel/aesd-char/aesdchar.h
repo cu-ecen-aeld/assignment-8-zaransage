@@ -8,28 +8,51 @@
 #ifndef AESD_CHAR_DRIVER_AESDCHAR_H_
 #define AESD_CHAR_DRIVER_AESDCHAR_H_
 
-#define AESD_DEBUG 1  //Remove comment on this line to enable debug
+#ifdef __KERNEL__
+#include <linux/cdev.h>
+#include <linux/printk.h>
+#include <linux/mutex.h>
+#include <linux/device.h>
+#include <linux/types.h>
+#else
+#include <stdio.h>
+#endif
 
-#undef PDEBUG             /* undef it, just in case */
+#include "aesd-circular-buffer.h"
+
+#define AESD_DEBUG 1  // Remove comment on this line to enable debug
+
+#undef PDEBUG
 #ifdef AESD_DEBUG
 #  ifdef __KERNEL__
-     /* This one if debugging is on, and kernel space */
-#    define PDEBUG(fmt, args...) printk( KERN_DEBUG "aesdchar: " fmt, ## args)
+#    define PDEBUG(fmt, args...) printk(KERN_DEBUG "aesdchar: " fmt, ## args)
 #  else
-     /* This one for user space */
 #    define PDEBUG(fmt, args...) fprintf(stderr, fmt, ## args)
 #  endif
 #else
-#  define PDEBUG(fmt, args...) /* not debugging: nothing */
+#  define PDEBUG(fmt, args...) do { } while (0)
 #endif
 
 struct aesd_dev
 {
-    /**
-     * TODO: Add structure(s) and locks needed to complete assignment requirements
-     */
-    struct cdev cdev;     /* Char device structure      */
+    struct cdev cdev;            
+
+    struct aesd_circular_buffer buffer;
+    struct mutex lock;
+
+    char *pending;
+    size_t pending_len;
+
+    dev_t devno;
+    struct class *class;
+    struct device *device;
 };
 
+extern struct file_operations aesd_fops;
+
+int aesd_open(struct inode *inode, struct file *filp);
+int aesd_release(struct inode *inode, struct file *filp);
+ssize_t aesd_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos);
+ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos);
 
 #endif /* AESD_CHAR_DRIVER_AESDCHAR_H_ */

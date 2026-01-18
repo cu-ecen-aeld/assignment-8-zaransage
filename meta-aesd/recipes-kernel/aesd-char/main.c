@@ -178,8 +178,24 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
         }
 
         // Buffer entry stuff I need to do here.
+        aesd_circular_buffer_add_entry(&device->buffer, &entry);
 
+        memmove(device->pending, device->pending + length, device->pending_len - length);
+        device->pending_len -= length;
+
+        if (device->pending_len == 0) {
+            kfree(device->pending);
+            device->pending = NULL;
+        } else {
+            char *adjusted = krealloc(device->pending, device->pending_len, GFP_KERNEL);
+            if (adjusted) {
+                device->pending = adjusted;
+            }
+        }
     }
+
+    mutex_unlock(&device->lock);
+    return count;
 }
 
 struct file_operations aesd_fops = {
@@ -189,20 +205,6 @@ struct file_operations aesd_fops = {
     .open =     aesd_open,
     .release =  aesd_release,
 };
-
-static int aesd_setup_cdev(struct aesd_dev *dev)
-{
-    int err, devno = MKDEV(aesd_major, aesd_minor);
-
-    cdev_init(&dev->cdev, &aesd_fops);
-    dev->cdev.owner = THIS_MODULE;
-    dev->cdev.ops = &aesd_fops;
-    err = cdev_add (&dev->cdev, devno, 1);
-    if (err) {
-        printk(KERN_ERR "Error %d adding aesd cdev", err);
-    }
-    return err;
-}
 
 int aesd_init_module(void)
 {

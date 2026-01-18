@@ -10,14 +10,19 @@
  * @copyright Copyright (c) 2019
  *
  */
-
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/printk.h>
 #include <linux/types.h>
 #include <linux/cdev.h>
-#include <linux/fs.h> 
+#include <linux/fs.h>
+#include <linux/uaccess.h>
+#include <linux/sched.h>  
+#include <linux/kernel.h> 
+#include <linux/completion.h>
+#include <linux/slab.h> 
 #include "aesdchar.h"
+
 int driver_major =   0;
 int driver_minor =   0;
 

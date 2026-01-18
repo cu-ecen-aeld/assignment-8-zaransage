@@ -52,10 +52,7 @@ int aesd_open(struct inode *inode, struct file *filp)
      */
 
     filp->private_data = container_of(inode->i_cdev, struct aesd_dev, cdev);
-
-    return 0;
-
-     printk("Opened the file!\n");
+    printk("Opened the file!\n");
     return 0;
 }
 
@@ -63,7 +60,7 @@ int aesd_release(struct inode *inode, struct file *filp)
 {
     PDEBUG("release");
     /**
-     * TODO: handle release
+     * TODO: handle release ** Still need to do this.
      */
     return 0;
 }
@@ -79,7 +76,9 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
     size_t entry_off = 0;
     size_t to_copy;
 
-    if (count == 0) return 0;
+    if (count == 0) {
+        return 0;
+    }
 
     if (mutex_lock_interruptible(&dev->lock))
         return -ERESTARTSYS;
@@ -89,7 +88,7 @@ ssize_t aesd_read(struct file *filp, char __user *buf, size_t count,
             &dev->buffer, *f_pos + retval, &entry_off);
 
         if (!entry)
-            break; // EOF
+            break; // This should be the end of the file.
 
         to_copy = min(count - retval, entry->size - entry_off);
 
@@ -114,7 +113,73 @@ ssize_t aesd_write(struct file *filp, const char __user *buf, size_t count,
     /**
      * TODO: handle write
      */
-    return retval;
+
+     struct aesd_dev *device = filep->private_data;
+     char awaiting;
+     size_t i;
+     int error;
+
+     if (count == 0) {
+        return 0;
+     }
+
+     if (mutex_lock_interruptible(&device->lock)) {
+        return -ERESTARTSYS;
+     }
+
+     // I need the item, plus the total size and a new count.
+     awaiting = krealloc(device->pending, device->pending_len + count, GFP_KERNEL);
+     if (!awaiting) {
+        mutex_unlock(&device->lock);
+        printk(KERN_ERR "There is an error allowcating memory: %d\n", error);
+        return -ENOMEM;
+     }
+
+    device->pending_len += count;
+
+    while (true) {
+        size_t length = 0;
+        bool foundIt = false;
+
+        for (i = 0; i <device->pending_len; i++){
+            if (device->pending[i] == '\n') {
+                length = i + 1;
+                foundIt = true;
+                break;
+            }
+        }
+
+        if (!foundIt) {
+            break;
+        }
+
+        char *command = kmalloc(length, GFP_KERNEL);
+        struct aesd_buffer_entry entry;
+
+        if (!command) {
+            mutex_unlock(&device->lock);
+            return -ENOMEM;
+        }
+
+        memcpy(command, device->pending, length);
+
+        // Hd to look this one up.
+        entry.buffer = (const char *) cmd;
+        entry.size = length;
+
+        // Clear the memory usage and wipe the buffer value.
+        if (device-?buffer.full) {
+            const char *old_data = device->buffer.entry[device->buffer.in_offs].buffer;
+            if (old_data) {
+                kgree(old_data);
+            device->buffer.entry[device->buffer.in_offs].buffprt = NULL;
+            device->buffer.entry[device->buffer.in_offs].size = 0;
+            }
+        }
+
+        // Buffer entry stuff I need to do here.
+
+    }
 }
 
 struct file_operations aesd_fops = {

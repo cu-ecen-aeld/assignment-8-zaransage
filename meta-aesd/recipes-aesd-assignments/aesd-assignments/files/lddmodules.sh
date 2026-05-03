@@ -5,6 +5,7 @@ case "$1" in
     /etc/rc5.d/S98faulty_init.sh stop
     /etc/rc5.d/S98hello_init.sh stop
     /etc/rc5.d/S98scull_init.sh stop
+    /etc/rc5.d/S98aesd_init.sh stop
 
 esac
 

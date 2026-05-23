@@ -41,6 +41,3 @@ do_install:append() {
  
 FILES:${PN} += "${sysconfdir}/init.d"                                                                                                                                                                   
 FILES:${PN} += "${sysconfdir}/init.d/aesdchar_init.sh"
-PACKAGES =+ "kernel-module-aesdchar"        
-
-FILES:kernel-module-aesdchar = "${nonarch_base_libdir}/modules/${KERNEL_VERSION}/extra/aesdchar.ko"

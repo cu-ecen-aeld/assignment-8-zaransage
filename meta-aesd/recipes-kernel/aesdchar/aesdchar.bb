@@ -4,7 +4,7 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"                                                                                                              
 
 # I do not like this right now but if I eventually move this to another repo as its own driver this would make sense.                                                                                                                                                                                                        
-SRC_URI = "git://git@github.com/cu-ecen-aeld/assignments-3-and-later-zaransage.git;protocol=ssh;branch=master"
+SRC_URI = "git://git@github.com/cu-ecen-aeld/assignments-3-and-later-zaransage.git;protocol=https;branch=master"
 SRC_URI += "file://aesdchar_init.sh"                                                                                                                                                                    
                 
 PV = "1.0+git${SRCPV}"                                                                                                                                                                                  
